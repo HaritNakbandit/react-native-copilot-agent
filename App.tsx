@@ -1,117 +1,125 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
-  useColorScheme,
   View,
 } from 'react-native';
+import {AuthProvider, useAuth} from './src/contexts/AuthContext';
+import {PortfolioProvider} from './src/contexts/PortfolioContext';
+import LoginScreen from './src/screens/auth/LoginScreen';
+import RegisterScreen from './src/screens/auth/RegisterScreen';
+import MainNavigator from './src/components/MainNavigator';
+import StorageService from './src/services/StorageService';
+import {SAMPLE_FUNDS} from './src/utils/sampleData';
+import {COLORS} from './src/utils/constants';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Initialize sample data on app start
+const initializeSampleData = async () => {
+  try {
+    const existingFunds = await StorageService.getFunds();
+    if (existingFunds.length === 0) {
+      await StorageService.saveFunds(SAMPLE_FUNDS);
+    }
+  } catch (error) {
+    console.error('Error initializing sample data:', error);
+  }
+};
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+// Initialize data when app starts
+initializeSampleData();
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const AppContent: React.FC = () => {
+  const {state, login, register} = useAuth();
+  const [currentScreen, setCurrentScreen] = useState<'login' | 'register'>('login');
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handleLogin = async (email: string, password: string): Promise<boolean> => {
+    return await login(email, password);
   };
 
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+  const handleRegister = async (userData: {
+    email: string;
+    password: string;
+    fullName: string;
+    phoneNumber: string;
+  }): Promise<boolean> => {
+    return await register(userData);
+  };
+
+  const handleNavigateToRegister = () => {
+    setCurrentScreen('register');
+  };
+
+  const handleNavigateToLogin = () => {
+    setCurrentScreen('login');
+  };
+
+  if (state.loading) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <View style={styles.loadingContent}>
+          {/* Add loading spinner component here */}
         </View>
-      </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (!state.isAuthenticated) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+        {currentScreen === 'login' ? (
+          <LoginScreen
+            onLogin={handleLogin}
+            onNavigateToRegister={handleNavigateToRegister}
+          />
+        ) : (
+          <RegisterScreen
+            onRegister={handleRegister}
+            onNavigateToLogin={handleNavigateToLogin}
+          />
+        )}
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <MainNavigator />
     </SafeAreaView>
   );
-}
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <PortfolioProvider>
+        <AppContent />
+      </PortfolioProvider>
+    </AuthProvider>
+  );
+};
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: COLORS.background,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  loadingContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  highlight: {
-    fontWeight: '700',
+  placeholder: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
 });
 
