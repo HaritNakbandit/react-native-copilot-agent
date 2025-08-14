@@ -249,7 +249,6 @@ const MyScreen = () => {
 Remember: The Settings feature is fully functional and serves as a template for implementing other features. Use the same patterns for form handling, navigation, and context integration.
 
 ## Code Review Guidelines
-- When performing a code review, follow these guidelines:
-- When performing a code review, respond in Spanish.
-- When performing a code review, follow our internal security checklist.
-- When performing a code review, focus on readability and avoid nested ternary operators.
+When performing a code review, follow these guidelines:
+When performing a code review, follow our internal security checklist.
+When performing a code review, focus on readability and avoid nested ternary operators.
