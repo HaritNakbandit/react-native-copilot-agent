@@ -16,9 +16,9 @@ jest.spyOn(Alert, 'alert');
 // Mock the navigation
 const mockNavigate = jest.fn();
 jest.mock('@react-navigation/native', () => {
-  const actualNav = jest.requireActual('@react-navigation/native');
+  const actualNav = jest.requireActual('@react-navigation/native') as any;
   return {
-    ...actualNav,
+    ...(actualNav || {}),
     useNavigation: () => ({
       navigate: mockNavigate,
     }),
