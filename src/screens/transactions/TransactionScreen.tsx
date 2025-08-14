@@ -13,11 +13,7 @@ import {useAuth} from '../../contexts/AuthContext';
 import StorageService from '../../services/StorageService';
 import CustomButton from '../../components/common/CustomButton';
 
-interface TransactionScreenProps {
-  onBack: () => void;
-}
-
-const TransactionScreen: React.FC<TransactionScreenProps> = ({onBack}) => {
+const TransactionScreen: React.FC = () => {
   const {state: authState} = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [funds, setFunds] = useState<Fund[]>([]);
@@ -212,15 +208,6 @@ const TransactionScreen: React.FC<TransactionScreenProps> = ({onBack}) => {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={renderEmptyState}
       />
-
-      <View style={styles.actionBar}>
-        <CustomButton
-          title="Back to Dashboard"
-          onPress={onBack}
-          variant="outline"
-          style={styles.backButton}
-        />
-      </View>
     </View>
   );
 };

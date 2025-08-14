@@ -6,21 +6,20 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {Fund} from '../../types';
 import {COLORS, FONT_SIZES, SPACING, RISK_LEVELS} from '../../utils/constants';
 import CustomButton from '../../components/common/CustomButton';
+import { FundsStackParamList } from '../../types/navigation';
 
-interface FundDetailsScreenProps {
-  fund: Fund;
-  onInvest: (fund: Fund) => void;
-  onBack: () => void;
-}
+type FundDetailsScreenNavigationProp = NativeStackNavigationProp<FundsStackParamList, 'FundDetails'>;
+type FundDetailsScreenRouteProp = RouteProp<FundsStackParamList, 'FundDetails'>;
 
-const FundDetailsScreen: React.FC<FundDetailsScreenProps> = ({
-  fund,
-  onInvest,
-  onBack,
-}) => {
+const FundDetailsScreen: React.FC = () => {
+  const navigation = useNavigation<FundDetailsScreenNavigationProp>();
+  const route = useRoute<FundDetailsScreenRouteProp>();
+  const { fund } = route.params;
   const formatCurrency = (amount: number): string => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -59,7 +58,7 @@ const FundDetailsScreen: React.FC<FundDetailsScreenProps> = ({
   };
 
   const handleInvest = () => {
-    onInvest(fund);
+    navigation.navigate('Investment', { fund });
   };
 
   return (
@@ -175,7 +174,7 @@ const FundDetailsScreen: React.FC<FundDetailsScreenProps> = ({
       <View style={styles.actionBar}>
         <CustomButton
           title="Back to Funds"
-          onPress={onBack}
+          onPress={() => navigation.goBack()}
           variant="outline"
           style={styles.backButton}
         />

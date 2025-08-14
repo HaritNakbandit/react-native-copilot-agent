@@ -9,20 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {COLORS, FONT_SIZES, SPACING, VALIDATION_RULES} from '../../utils/constants';
 import CustomButton from '../../components/common/CustomButton';
+import { useAuth } from '../../contexts/AuthContext';
+import { AuthStackParamList } from '../../types/navigation';
 
-interface RegisterScreenProps {
-  onRegister: (userData: {
-    email: string;
-    password: string;
-    fullName: string;
-    phoneNumber: string;
-  }) => Promise<boolean>;
-  onNavigateToLogin: () => void;
-}
+type RegisterScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
-const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateToLogin}) => {
+const RegisterScreen: React.FC = () => {
+  const navigation = useNavigation<RegisterScreenNavigationProp>();
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -86,7 +84,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateTo
 
     setLoading(true);
     try {
-      const success = await onRegister({
+      const success = await register({
         email: formData.email.trim(),
         password: formData.password,
         fullName: formData.fullName.trim(),
@@ -132,6 +130,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateTo
               placeholderTextColor={COLORS.textSecondary}
               autoCapitalize="words"
               autoCorrect={false}
+              testID='input-full-name'
             />
             {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
           </View>
@@ -147,6 +146,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateTo
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              testID='input-email'
             />
             {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
           </View>
@@ -161,6 +161,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateTo
               placeholderTextColor={COLORS.textSecondary}
               keyboardType="phone-pad"
               autoCorrect={false}
+              testID='input-phone-number'
             />
             {errors.phoneNumber && <Text style={styles.errorText}>{errors.phoneNumber}</Text>}
           </View>
@@ -176,6 +177,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateTo
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              testID='input-password'
             />
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
           </View>
@@ -191,6 +193,7 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateTo
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              testID='input-confirm-password'
             />
             {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
           </View>
@@ -200,13 +203,14 @@ const RegisterScreen: React.FC<RegisterScreenProps> = ({onRegister, onNavigateTo
             onPress={handleRegister}
             loading={loading}
             style={styles.registerButton}
+            testID='register-button'
           />
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
             <CustomButton
               title="Sign In"
-              onPress={onNavigateToLogin}
+              onPress={() => navigation.navigate('Login')}
               variant="outline"
               style={styles.loginButton}
             />

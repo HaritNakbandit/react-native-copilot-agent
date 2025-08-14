@@ -6,19 +6,17 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import {COLORS, FONT_SIZES, SPACING} from '../../utils/constants';
 import CustomButton from '../../components/common/CustomButton';
 import {useAuth} from '../../contexts/AuthContext';
+import { MainTabParamList } from '../../types/navigation';
 
-interface DashboardScreenProps {
-  onNavigateToFunds: () => void;
-  onNavigateToTransactions: () => void;
-}
+type DashboardScreenNavigationProp = BottomTabNavigationProp<MainTabParamList, 'Dashboard'>;
 
-const DashboardScreen: React.FC<DashboardScreenProps> = ({
-  onNavigateToFunds,
-  onNavigateToTransactions,
-}) => {
+const DashboardScreen: React.FC = () => {
+  const navigation = useNavigation<DashboardScreenNavigationProp>();
   const {state, logout} = useAuth();
 
   const handleLogout = async () => {
@@ -54,11 +52,11 @@ const DashboardScreen: React.FC<DashboardScreenProps> = ({
         <Text style={styles.sectionTitle}>Quick Actions</Text>
         
         <View style={styles.actionButtons}>
-          <TouchableOpacity style={styles.actionButton} onPress={onNavigateToFunds}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Funds')}>
             <Text style={styles.actionButtonText}>Explore Funds</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.actionButton} onPress={onNavigateToTransactions}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Transactions')}>
             <Text style={styles.actionButtonText}>View Transactions</Text>
           </TouchableOpacity>
         </View>
