@@ -111,6 +111,15 @@ class StorageService {
     }
   }
 
+  async deleteInvestments(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.INVESTMENTS);
+    } catch (error) {
+      console.error('Error deleting investments:', error);
+      throw error;
+    }
+  }
+
   // Transaction methods
   async saveTransaction(transaction: Transaction): Promise<void> {
     try {
@@ -130,6 +139,15 @@ class StorageService {
     } catch (error) {
       console.error('Error getting transactions:', error);
       return [];
+    }
+  }
+
+  async deleteTransactions(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.TRANSACTIONS);
+    } catch (error) {
+      console.error('Error deleting transactions:', error);
+      throw error;
     }
   }
 
@@ -168,6 +186,15 @@ class StorageService {
     } catch (error) {
       console.error('Error searching funds:', error);
       return [];
+    }
+  }
+
+  async deleteFunds(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.FUNDS_DATA);
+    } catch (error) {
+      console.error('Error deleting funds:', error);
+      throw error;
     }
   }
 
