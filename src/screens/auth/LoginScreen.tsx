@@ -85,8 +85,9 @@ const LoginScreen: React.FC = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              testID="input-email"
             />
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            {errors.email && <Text style={styles.errorText} testID="error-email">{errors.email}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -100,8 +101,9 @@ const LoginScreen: React.FC = () => {
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              testID="input-password"
             />
-            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            {errors.password && <Text style={styles.errorText} testID="error-password">{errors.password}</Text>}
           </View>
 
           <CustomButton
@@ -109,6 +111,7 @@ const LoginScreen: React.FC = () => {
             onPress={handleLogin}
             loading={loading}
             style={styles.loginButton}
+            testID="login-button"
           />
 
           <View style={styles.registerContainer}>
@@ -118,6 +121,7 @@ const LoginScreen: React.FC = () => {
               onPress={() => navigation.navigate('Register')}
               variant="outline"
               style={styles.registerButton}
+              testID="register-button"
             />
           </View>
         </View>
