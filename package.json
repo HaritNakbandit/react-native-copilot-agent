@@ -1,6 +1,6 @@
 {
   "name": "investment-fund-app",
-  "version": "0.0.1",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -16,12 +16,13 @@
     "@react-navigation/native-stack": "^7.3.25",
     "@react-navigation/stack": "^7.4.7",
     "react": "18.2.0",
-    "react-native": "0.74.2",
+    "react-native": "^0.74.5",
     "react-native-chart-kit": "^6.12.0",
     "react-native-elements": "^3.4.3",
+    "react-native-gesture-handler": "^2.20.0",
     "react-native-linear-gradient": "^2.8.3",
-    "react-native-safe-area-context": "^5.6.0",
-    "react-native-screens": "^4.13.1",
+    "react-native-safe-area-context": "^4.14.0",
+    "react-native-screens": "^4.14.0",
     "react-native-svg": "^15.12.1",
     "react-native-vector-icons": "^10.3.0"
   },

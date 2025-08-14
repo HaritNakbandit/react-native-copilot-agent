@@ -8,16 +8,18 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {Fund} from '../../types';
 import {COLORS, FONT_SIZES, SPACING, FUND_CATEGORIES} from '../../utils/constants';
 import StorageService from '../../services/StorageService';
 import FundCard from '../../components/common/FundCard';
+import { FundsStackParamList } from '../../types/navigation';
 
-interface FundListScreenProps {
-  onFundSelect: (fund: Fund) => void;
-}
+type FundListScreenNavigationProp = NativeStackNavigationProp<FundsStackParamList, 'FundList'>;
 
-const FundListScreen: React.FC<FundListScreenProps> = ({onFundSelect}) => {
+const FundListScreen: React.FC = () => {
+  const navigation = useNavigation<FundListScreenNavigationProp>();
   const [funds, setFunds] = useState<Fund[]>([]);
   const [filteredFunds, setFilteredFunds] = useState<Fund[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,7 +73,7 @@ const FundListScreen: React.FC<FundListScreenProps> = ({onFundSelect}) => {
   };
 
   const handleFundPress = (fund: Fund) => {
-    onFundSelect(fund);
+    navigation.navigate('FundDetails', { fund });
   };
 
   const renderFundCard = ({item}: {item: Fund}) => (
