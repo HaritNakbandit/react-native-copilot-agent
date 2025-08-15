@@ -74,7 +74,7 @@ graph TB
     end
     
     subgraph "PortfolioContext State"
-        PortfolioState[PortfolioState<br/>- funds: Fund[]<br/>- investments: Investment[]<br/>- transactions: Transaction[]<br/>- portfolioSummary: PortfolioSummary<br/>- loading: boolean]
+        PortfolioState[PortfolioState<br/>- funds: Fund Array<br/>- investments: Investment Array<br/>- transactions: Transaction Array<br/>- portfolioSummary: PortfolioSummary<br/>- loading: boolean]
         PortfolioActions[PortfolioActions<br/>- SET_FUNDS/INVESTMENTS/TRANSACTIONS<br/>- ADD_INVESTMENT/TRANSACTION<br/>- UPDATE_INVESTMENT<br/>- SET_PORTFOLIO_SUMMARY]
     end
     
