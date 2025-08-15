@@ -1,6 +1,32 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# React Native Investment Fund App
+
+This is a **React Native Investment Fund Application** that allows users to browse, invest in, and manage mutual fund investments. The app features user authentication, portfolio management, fund browsing, transaction history, and comprehensive settings.
+
+## 📋 Documentation
+
+- **[Architecture Overview](./ARCHITECTURE.md)** - Comprehensive architecture documentation with Mermaid diagrams showing app structure, navigation flow, state management, and data flow
+
+## 🚀 Features
+
+- **User Authentication** - Login and registration with session management
+- **Portfolio Dashboard** - Overview of investments and performance
+- **Fund Management** - Browse and invest in mutual funds with search and filtering
+- **Transaction History** - Track all investment and redemption transactions
+- **Settings Management** - Complete user profile, security, notification, and theme settings
+- **Data Persistence** - Local data storage with AsyncStorage
+
+## 🛠 Technology Stack
+
+- **React Native 0.74.2** - Cross-platform mobile framework
+- **TypeScript** - Type-safe development
+- **React Navigation 6** - App navigation
+- **Context API** - State management
+- **AsyncStorage** - Local data persistence
+- **Jest** - Testing framework
 
 # Getting Started
+
+>**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
 >**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
@@ -45,6 +71,28 @@ yarn ios
 If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
 
 This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+
+## 🧪 Testing
+
+Run the test suite to verify everything is working correctly:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+## 📱 Current Implementation Status
+
+- ✅ **Settings Feature** - Fully implemented with profile, security, notifications, and theme management
+- ⚠️ **Authentication** - UI complete, form validation needs enhancement
+- ⚠️ **Dashboard** - Basic structure, needs portfolio calculations
+- ⚠️ **Fund Management** - Framework in place, needs investment flow completion
+- ⚠️ **Transactions** - Basic screen, needs full implementation
+
+For detailed architecture information, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## Step 3: Modifying your App
 
