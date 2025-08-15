@@ -69,7 +69,7 @@ graph TB
     
     %% State Structure
     subgraph "AuthContext State"
-        AuthState[AuthState<br/>- isAuthenticated: boolean<br/>- user: User | null<br/>- loading: boolean]
+        AuthState[AuthState<br/>- isAuthenticated: boolean<br/>- user: User or null<br/>- loading: boolean]
         AuthActions[AuthActions<br/>- LOGIN_START/SUCCESS/FAILURE<br/>- REGISTER_START/SUCCESS/FAILURE<br/>- LOGOUT]
     end
     
