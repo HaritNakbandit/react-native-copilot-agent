@@ -25,26 +25,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.0'
-          bundler-cache: true
-
-      - name: Install dependencies
-        run: |
-          npm ci
-          # Install Ruby dependencies for iOS (if needed)
-          bundle install --jobs 4 --retry 3
 
       - name: TypeScript Check
         run: npx tsc --noEmit
 
       - name: Run Tests
-        run: npm test -- --coverage --watchAll=false
+        run: npm test
 
       - name: Upload Coverage Reports
         uses: codecov/codecov-action@v3
