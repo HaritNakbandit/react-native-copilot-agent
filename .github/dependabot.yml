@@ -1,0 +1,81 @@
+version: 2
+updates:
+  # React Native dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "HaritNakbandit"
+    assignees:
+      - "HaritNakbandit"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "automated"
+    ignore:
+      # Ignore major React Native updates (requires manual testing)
+      - dependency-name: "react-native"
+        update-types: ["version-update:semver-major"]
+      # Ignore major React updates 
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+    groups:
+      react-navigation:
+        patterns:
+          - "@react-navigation/*"
+      testing:
+        patterns:
+          - "*jest*"
+          - "@testing-library/*"
+          - "react-test-renderer"
+      babel:
+        patterns:
+          - "@babel/*"
+          - "babel-*"
+      react-native-core:
+        patterns:
+          - "@react-native/*"
+          - "react-native-*"
+
+  # iOS CocoaPods
+  - package-ecosystem: "bundler"
+    directory: "/ios"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "ios"
+      - "automated"
+
+  # Android Gradle
+  - package-ecosystem: "gradle"
+    directory: "/android"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "11:00"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "android"
+      - "automated"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "ci/cd"
+      - "automated"

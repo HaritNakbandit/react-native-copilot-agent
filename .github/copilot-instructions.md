@@ -1,254 +1,163 @@
 # GitHub Copilot Instructions - React Native Investment Fund App
 
-## Project Status
-This is a **partially implemented** React Native investment fund application. The basic structure is in place with navigation, authentication scaffolding, and a complete Settings feature implemented.
+## Architecture Overview
 
-## Current Architecture & Implemented Features
+This is a **React Native 0.74.5** investment fund application with TypeScript. The app uses a **context-first** architecture without Redux, featuring custom screen-based navigation instead of React Navigation's standard tab navigator.
 
-### Navigation Structure ✅ COMPLETE
-- **AppNavigator.tsx**: Root navigator with auth/main flow switching
-- **AuthNavigator.tsx**: Stack navigator for login/register screens
-- **MainNavigator.tsx**: Bottom tab navigator (Dashboard, Funds, Transactions, Settings)
-- **FundsNavigator.tsx**: Stack navigator for fund-related screens
-- **SettingsNavigator.tsx**: Stack navigator for all settings screens
+### Critical Architecture Patterns
 
-### Settings Feature ✅ COMPLETE
-- ✅ **Main Settings Menu**: User profile display, settings categories, logout
-- ✅ **Profile Settings**: Edit name, phone, view email (read-only)
-- ✅ **Security Settings**: Change password, biometric toggle, security tips
-- ✅ **Notification Settings**: Toggle alerts, performance updates, market news
-- ✅ **Theme & Language**: Light/dark theme, language selection, display preferences
-- ✅ **Full Integration**: Connected to AuthContext, proper navigation, form validation
-
-### Authentication (Partial) ⚠️ NEEDS COMPLETION
-- ✅ UI screens (Login/Register) with basic layout
-- ✅ AuthContext with state management structure
-- ⚠️ Form validation needs implementation
-- ⚠️ Actual authentication logic needs completion
-- ⚠️ Session persistence needs full implementation
-
-### Technical Stack (Current)
-- **React Native CLI**: 0.74.2
-- **Language**: TypeScript with strict typing
-- **Navigation**: React Navigation 6 (fully implemented)
-- **State Management**: React Context API (AuthContext, PortfolioContext)
-- **Storage**: AsyncStorage service (structure created, needs implementation)
-- **UI**: Native React Native components with consistent styling
-- **Redemption confirmation** with estimated proceeds
-- **Processing status** tracking
-- **Historical redemption** records
-
-### Missing Features (Priority Order)
-
-#### 1. Fund Management (Partial Implementation)
-- ⚠️ Complete `FundListScreen.tsx` with search and filtering
-- ⚠️ Implement `FundDetailsScreen.tsx` with investment flow
-- ⚠️ Add fund performance calculations
-
-#### 2. Portfolio Features (Basic Structure Only)
-- ⚠️ Complete `DashboardScreen.tsx` with real portfolio data
-- ⚠️ Implement portfolio calculations (gains/losses, allocation)
-- ⚠️ Add chart components for performance visualization
-
-#### 3. Transaction System (Basic Screen Only)
-- ⚠️ Complete `TransactionScreen.tsx` with history display
-- ⚠️ Implement redemption flow
-- ⚠️ Add transaction status management
-
-#### 4. Authentication Enhancement
-- ⚠️ Complete form validation on login/register screens
-- ⚠️ Implement actual authentication logic
-- ⚠️ Add session persistence and security
-
-#### 5. Storage Service Implementation
-- ⚠️ Complete all methods in `StorageService.ts`
-- ⚠️ Add error handling and data encryption
-- ⚠️ Create migration logic for data structure changes
-
-## Key Files to Understand
-
-### Core Navigation
-- `src/components/AppNavigator.tsx` - Root navigation logic
-- `src/components/MainNavigator.tsx` - Main tab navigation 
-- `src/components/AuthNavigator.tsx` - Authentication flow
-- `src/components/SettingsNavigator.tsx` - Settings stack navigation ✅
-
-### Data Layer
-- `src/types/index.ts` - All TypeScript interfaces (User, Fund, Investment, Transaction)
-- `src/utils/sampleData.ts` - Sample fund data and constants
-- `src/services/StorageService.ts` - AsyncStorage wrapper (needs implementation)
-
-### State Management
-- `src/contexts/AuthContext.tsx` - User authentication state
-- `src/contexts/PortfolioContext.tsx` - Portfolio data state
-
-### Implemented Screens ✅
-- `src/screens/settings/SettingsScreen.tsx` - Main settings menu ✅
-- `src/screens/settings/ProfileScreen.tsx` - Profile management ✅
-- `src/screens/settings/SecurityScreen.tsx` - Security settings ✅
-- `src/screens/settings/NotificationsScreen.tsx` - Notification preferences ✅
-- `src/screens/settings/ThemeScreen.tsx` - Theme and language ✅
-
-### Partial Screens (Need Completion)
-- `src/screens/auth/` - Login and Register screens (UI only)
-- `src/screens/dashboard/` - Portfolio overview (basic structure)
-- `src/screens/funds/` - Fund listing and details (basic structure)
-
-## Current Data Structure
-
-The app uses these TypeScript interfaces (defined in `src/types/index.ts`):
-
-```typescript
-interface User {
-  id: string;
-  email: string;
-  fullName: string;
-  phoneNumber: string;
-  profilePicture?: string;
-  createdAt: Date;
-  settings: UserSettings;
-}
-
-interface UserSettings {
-  theme: 'light' | 'dark';
-  language: string;
-  notifications: NotificationSettings;
-  biometricEnabled: boolean;
-}
-
-interface NotificationSettings {
-  transactionAlerts: boolean;
-  performanceUpdates: boolean;
-  marketNews: boolean;
-  pushNotifications: boolean;
-}
-
-interface Fund {
-  id: string;
-  name: string;
-  category: string;
-  description: string;
-  minimumInvestment: number;
-  currentNAV: number;
-  oneYearReturn: number;
-  threeYearReturn: number;
-  fiveYearReturn: number;
-  riskLevel: 'Low' | 'Medium' | 'High';
-  fundManager: string;
-  inceptionDate: Date;
-  totalAssets: number;
-}
-
-interface Investment {
-  id: string;
-  userId: string;
-  fundId: string;
-  amount: number;
-  units: number;
-  purchaseNAV: number;
-  purchaseDate: Date;
-  currentValue: number;
-  status: 'Active' | 'Redeemed' | 'Partial';
-}
+#### 1. Custom Navigation Architecture
+- **No Tab Navigator**: Uses `MainNavigator.tsx` with state-based screen switching
+- **Screen State Management**: `currentScreen` state controls which component renders
+- **Navigation Props**: Each screen receives navigation callbacks as props
+```tsx
+// MainNavigator pattern - screen switching via state
+const [currentScreen, setCurrentScreen] = useState<Screen>('dashboard');
+const handleFundSelect = (fund: Fund) => {
+  setSelectedFund(fund);
+  setCurrentScreen('fundDetails'); // Direct state navigation
+};
 ```
 
-## Sample Data Available
+#### 2. Functional Service Pattern
+- **StorageService**: Recently converted from class to functional pattern
+- **Object Export**: Functions grouped in exported object maintaining singleton behavior
+```typescript
+// New functional service pattern
+const saveUser = async (user: User): Promise<void> => { ... };
+const StorageService = { saveUser, getUser, clearUser, ... };
+export default StorageService;
+```
 
-The project includes realistic sample data in `src/utils/sampleData.ts`:
-- 6 sample funds with real-world fund names and data
-- Fund categories: Equity, Bond, Hybrid, Index
-- Performance data spanning 1-5 years
-- Risk levels and minimum investment amounts
+#### 3. Context-Heavy State Management
+- **AuthContext**: User authentication + profile management + settings
+- **PortfolioContext**: Investment data + portfolio calculations + fund management
+- **No Redux**: All state through React Context API with reducers
 
-## Development Guidelines
+## Key Implementation Details
 
-### Building & Running
+### Data Layer Architecture
+- **TypeScript Interfaces**: All in `src/types/index.ts` (User, Fund, Investment, Transaction, PortfolioSummary)
+- **Sample Data Initialization**: `App.tsx` loads `SAMPLE_FUNDS` on startup if none exist
+- **Currency Formatting**: INR (Indian Rupee) using `Intl.NumberFormat('en-IN')`
+- **Date Handling**: All `Date` objects, formatted with `Intl.DateTimeFormat('en-IN')`
+
+### UI/Styling Conventions
+- **Design System**: `src/utils/constants.ts` defines `COLORS`, `FONT_SIZES`, `SPACING`
+- **Dark Theme Support**: `DARK_COLORS` object with theme switching capability
+- **Risk Level Indicators**: Color-coded based on `RISK_LEVELS` mapping
+- **Card-Based UI**: Consistent shadow/elevation styling across components
+
+### Form Patterns
+- **Validation Rules**: `VALIDATION_RULES` in constants for email/phone patterns
+- **Error State Management**: Local state with `errors` object pattern
+- **Loading States**: `loading` boolean with disabled button states
+```tsx
+// Consistent form validation pattern
+const [errors, setErrors] = useState<Record<string, string>>({});
+const validateForm = (): boolean => {
+  const newErrors: Record<string, string> = {};
+  // ... validation logic
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+```
+
+## Development Workflows
+
+### Testing Strategy
+- **Jest Configuration**: `jest.config.js` with React Native preset
+- **Testing Library**: `@testing-library/react-native` for component testing
+- **Test Location**: `__tests__/` directory with `.test.tsx` files
+- **Mock Navigation**: Custom mocks in `__mocks__/@react-navigation/`
+
+### Build Commands
 ```bash
+# Development
+npx react-native start          # Metro bundler
+npx react-native run-ios        # iOS simulator
+npx react-native run-android    # Android emulator
 
-# Start Metro bundler
-npx react-native start
+# Testing
+npm test                        # Jest test runner
 
-# iOS
-npx react-native run-ios
-
-# Android  
-npx react-native run-android
-
-# Clean build (if needed)
+# Clean builds (when needed)
 cd ios && xcodebuild clean && cd ..
 cd android && ./gradlew clean && cd ..
 ```
 
-### Testing
-```bash
-# Run tests
-npm test
+### Storage & Persistence
+- **AsyncStorage Keys**: Prefixed with `@` (e.g., `@user_profile`, `@investments`)
+- **Session Management**: 30-day expiration with timestamp checking
+- **Cache Strategy**: Portfolio cache expires after 1 hour
+- **Data Export/Import**: JSON serialization for backup/restore
 
-# Test files are in __tests__/ directory
-# Current tests: App.test.tsx, RegisterScreen.test.tsx, SettingsScreen.test.tsx
+## Project-Specific Patterns
+
+### Navigation Flow
+```
+App.tsx (initialization)
+├── AuthProvider/PortfolioProvider
+├── AppContent (auth state switching)
+├── MainNavigator (screen state management)
+└── Individual Screens (prop-based navigation)
 ```
 
-### Settings Feature Usage
-The complete Settings feature is now implemented:
+### State Management Flow
+```
+Context Provider → useReducer → dispatch actions → update state → re-render consumers
+```
 
-1. **Access Settings**: Tap Settings tab in bottom navigation
-2. **Profile Management**: 
-   - Edit name and phone number
-   - View email (read-only)
-   - Save changes with validation
-3. **Security Settings**:
-   - Change password with confirmation
-   - Toggle biometric authentication
-   - View security tips
-4. **Notifications**:
-   - Control transaction alerts
-   - Toggle performance updates
-   - Manage market news notifications
-5. **Theme & Language**:
-   - Switch between light/dark themes
-   - Select from 5 languages
-   - View display preferences
+### Investment Flow
+```
+FundListScreen → FundDetailsScreen → InvestmentScreen → Transaction Creation → Portfolio Update
+```
 
-### Code Patterns to Follow
-1. **Use existing TypeScript interfaces** - don't create new ones without checking `src/types/index.ts`
-2. **Follow navigation structure** - use the established navigator hierarchy
-3. **Use sample data** - reference `src/utils/sampleData.ts` for realistic test data
-4. **Context pattern** - follow the AuthContext pattern for new context providers
-5. **Screen structure** - follow the pattern in settings screens for consistency
-6. **Form validation** - use the patterns established in ProfileScreen and SecurityScreen
+## Component Integration Patterns
 
-### Settings Integration Example
-```typescript
-// Using AuthContext in screens
+### Context Usage
+```tsx
+// Standard context integration pattern
 import { useAuth } from '../../contexts/AuthContext';
+import { usePortfolio } from '../../contexts/PortfolioContext';
 
 const MyScreen = () => {
   const { state, updateUser } = useAuth();
-  
-  // Access user data
-  const user = state.user;
-  
-  // Update user profile
-  await updateUser({ fullName: 'New Name' });
+  const { addInvestment, refreshPortfolioSummary } = usePortfolio();
+  // ... component logic
 };
 ```
 
-## Common Issues & Solutions
-- **Navigation typing**: Use `NavigationProp<any>` for now (can be improved later)
-- **AsyncStorage**: Import from `@react-native-async-storage/async-storage`
-- **Context updates**: Always dispatch actions through reducers, not direct state mutations
-- **Settings persistence**: Currently saved to context, needs StorageService integration
+### Screen Communication
+```tsx
+// Parent-child navigation via props
+interface ScreenProps {
+  onNavigateToNext: () => void;
+  onBack: () => void;
+  onSuccess?: () => void;
+}
+```
 
-## Next Steps for AI Agents
-1. **Complete StorageService implementation** - this is the foundation for data persistence
-2. **Add real authentication logic** - currently just UI shells with basic validation
-3. **Implement fund investment flow** - connect UI to data layer
-4. **Add portfolio calculations** - use the Investment interface to calculate portfolio performance
-5. **Create reusable UI components** - build a component library for consistent styling
+### Error Handling
+- **Try-catch**: AsyncStorage operations wrapped in try-catch
+- **Error Logging**: `console.error` for debugging with descriptive messages
+- **User Feedback**: Alert dialogs for user-facing errors
+- **Graceful Degradation**: Return empty arrays/null for failed data loads
 
-Remember: The Settings feature is fully functional and serves as a template for implementing other features. Use the same patterns for form handling, navigation, and context integration.
+## Critical Dependencies
 
-## Code Review Guidelines
-When performing a code review, follow these guidelines:
-When performing a code review, follow our internal security checklist.
-When performing a code review, focus on readability and avoid nested ternary operators.
+- **@react-native-async-storage/async-storage**: Local data persistence
+- **react-native-vector-icons**: Icon system (requires native linking)
+- **react-native-chart-kit**: Portfolio performance charts
+- **react-native-elements**: UI component library
+
+Remember: This app **does not use standard React Navigation tab structure** - it's a custom state-based navigation system. Always use the prop-based navigation callbacks rather than navigation hooks.
+
+## Commit Guidelines
+- **Commit Messages**: Use imperative mood (e.g., "Add feature", "Fix bug")
+- **Branch Naming**: Use `feature/`, `bugfix/`, or `hotfix/` prefixes
+- **Pull Requests**: Include clear descriptions of changes, screenshots if applicable, and link to relevant issues
+- **Code Reviews**: Ensure all new code is reviewed by at least one other developer before merging
+- **Testing**: All new features must include unit tests and integration tests where applicable
+- **Documentation**: Update relevant documentation (README, comments)
+- **Versioning**: Follow semantic versioning for releases (major.minor.patch) 
