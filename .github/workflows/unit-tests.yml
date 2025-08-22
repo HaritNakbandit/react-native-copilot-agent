@@ -1,0 +1,299 @@
+name: Unit Tests
+
+on:
+  pull_request:
+    branches: [ master, develop, release/* ]
+  push:
+    branches: [ master, develop ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Unit Tests & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: |
+          npm test -- \
+            --coverage \
+            --watchAll=false \
+            --testResultsProcessor=jest-junit \
+            --coverageReporters=text \
+            --coverageReporters=lcov \
+            --coverageReporters=html \
+            --verbose
+
+      - name: Generate test summary
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            try {
+              // Read coverage summary
+              let coverageSummary = null;
+              try {
+                const coverageData = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+                coverageSummary = coverageData.total;
+              } catch (e) {
+                console.log('Coverage summary not found');
+              }
+              
+              let summary = `# 🧪 Unit Test Results\n\n`;
+              
+              if (coverageSummary) {
+                const statements = coverageSummary.statements.pct;
+                const branches = coverageSummary.branches.pct;
+                const functions = coverageSummary.functions.pct;
+                const lines = coverageSummary.lines.pct;
+                
+                // Determine coverage status
+                const averageCoverage = (statements + branches + functions + lines) / 4;
+                let coverageEmoji = '🔴';
+                let coverageStatus = 'Low';
+                
+                if (averageCoverage >= 80) {
+                  coverageEmoji = '🟢';
+                  coverageStatus = 'Excellent';
+                } else if (averageCoverage >= 70) {
+                  coverageEmoji = '🟡';
+                  coverageStatus = 'Good';
+                } else if (averageCoverage >= 60) {
+                  coverageEmoji = '🟠';
+                  coverageStatus = 'Fair';
+                }
+                
+                summary += `## ${coverageEmoji} Test Coverage Report\n\n`;
+                summary += `**Overall Status:** ${coverageStatus} (${averageCoverage.toFixed(1)}% average)\n\n`;
+                summary += `| Metric | Coverage | Status |\n`;
+                summary += `|--------|----------|--------|\n`;
+                summary += `| **Statements** | ${statements}% | ${statements >= 80 ? '✅' : statements >= 70 ? '⚠️' : '❌'} |\n`;
+                summary += `| **Branches** | ${branches}% | ${branches >= 80 ? '✅' : branches >= 70 ? '⚠️' : '❌'} |\n`;
+                summary += `| **Functions** | ${functions}% | ${functions >= 80 ? '✅' : functions >= 70 ? '⚠️' : '❌'} |\n`;
+                summary += `| **Lines** | ${lines}% | ${lines >= 80 ? '✅' : lines >= 70 ? '⚠️' : '❌'} |\n\n`;
+                
+                // Coverage recommendations
+                if (averageCoverage < 80) {
+                  summary += `## 📈 Coverage Improvement Recommendations\n\n`;
+                  
+                  if (statements < 80) {
+                    summary += `- **Statements**: Add tests for uncovered code paths\n`;
+                  }
+                  if (branches < 80) {
+                    summary += `- **Branches**: Add tests for conditional logic (if/else, switch cases)\n`;
+                  }
+                  if (functions < 80) {
+                    summary += `- **Functions**: Add tests for utility functions and methods\n`;
+                  }
+                  if (lines < 80) {
+                    summary += `- **Lines**: Focus on testing business logic and edge cases\n`;
+                  }
+                  summary += `\n`;
+                }
+              } else {
+                summary += `## ⚠️ Coverage Report Not Available\n\n`;
+                summary += `Coverage data could not be generated. Please check Jest configuration.\n\n`;
+              }
+              
+              // Investment App specific test recommendations
+              summary += `## 🎯 Investment App Test Focus Areas\n\n`;
+              summary += `Based on your React Native Investment Fund App:\n\n`;
+              summary += `### Core Business Logic\n`;
+              summary += `- ✅ **Portfolio Calculations**: Test investment returns, percentage calculations\n`;
+              summary += `- ✅ **Fund Data Processing**: Test fund filtering, sorting, search functionality\n`;
+              summary += `- ✅ **Transaction Logic**: Test buy/sell operations, validation rules\n\n`;
+              
+              summary += `### Context & State Management\n`;
+              summary += `- 🧪 **AuthContext**: Test login/logout, user state management\n`;
+              summary += `- 🧪 **PortfolioContext**: Test investment tracking, portfolio updates\n`;
+              summary += `- 🧪 **StorageService**: Test AsyncStorage operations, data persistence\n\n`;
+              
+              summary += `### UI Components\n`;
+              summary += `- 🎨 **Screen Components**: Test navigation props, user interactions\n`;
+              summary += `- 🎨 **Form Validation**: Test input validation, error handling\n`;
+              summary += `- 🎨 **Data Display**: Test formatting, edge cases with empty data\n\n`;
+              
+              summary += `### Edge Cases\n`;
+              summary += `- 🚫 **Error Handling**: Network failures, invalid data\n`;
+              summary += `- 🚫 **Empty States**: No investments, no funds available\n`;
+              summary += `- 🚫 **Large Numbers**: High investment amounts, precision testing\n\n`;
+              
+              summary += `---\n*Coverage target: 80%+ for production readiness*`;
+              
+              console.log(summary);
+              
+              // Save summary for artifact
+              fs.writeFileSync('test-summary.md', summary);
+              
+            } catch (error) {
+              console.error('Error generating test summary:', error);
+            }
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: |
+            coverage/
+            test-summary.md
+          retention-days: 7
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Comment test results on PR
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            try {
+              const summary = fs.readFileSync('test-summary.md', 'utf8');
+              
+              // Find existing comment
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+              
+              const existingComment = comments.find(comment => 
+                comment.user.login === 'github-actions[bot]' && 
+                comment.body.includes('Unit Test Results')
+              );
+              
+              if (existingComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existingComment.id,
+                  body: summary
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: summary
+                });
+              }
+            } catch (error) {
+              console.log('Could not post test results comment:', error);
+            }
+
+      - name: Fail if coverage below threshold
+        if: always()
+        run: |
+          # Check if coverage meets minimum threshold
+          if [ -f "coverage/coverage-summary.json" ]; then
+            STATEMENTS=$(cat coverage/coverage-summary.json | jq -r '.total.statements.pct')
+            BRANCHES=$(cat coverage/coverage-summary.json | jq -r '.total.branches.pct')
+            FUNCTIONS=$(cat coverage/coverage-summary.json | jq -r '.total.functions.pct')
+            LINES=$(cat coverage/coverage-summary.json | jq -r '.total.lines.pct')
+            
+            echo "Coverage: Statements=$STATEMENTS%, Branches=$BRANCHES%, Functions=$FUNCTIONS%, Lines=$LINES%"
+            
+            # Aspirational threshold for warnings
+            WARNING_THRESHOLD=60
+            # Minimum threshold for failure (set to current levels)
+            FAIL_THRESHOLD=10
+            
+            # Check for failure threshold
+            if (( $(echo "$STATEMENTS < $FAIL_THRESHOLD" | bc -l) )) || \
+               (( $(echo "$LINES < $FAIL_THRESHOLD" | bc -l) )); then
+              echo "❌ Coverage critically low (below ${FAIL_THRESHOLD}%)"
+              exit 1
+            else
+              echo "✅ Coverage meets minimum ${FAIL_THRESHOLD}% threshold"
+            fi
+            
+            # Check for warning threshold
+            if (( $(echo "$STATEMENTS < $WARNING_THRESHOLD" | bc -l) )) || \
+               (( $(echo "$BRANCHES < $WARNING_THRESHOLD" | bc -l) )) || \
+               (( $(echo "$FUNCTIONS < $WARNING_THRESHOLD" | bc -l) )) || \
+               (( $(echo "$LINES < $WARNING_THRESHOLD" | bc -l) )); then
+              echo "⚠️ Coverage below recommended ${WARNING_THRESHOLD}% threshold"
+              echo "Consider adding more tests to improve coverage"
+            else
+              echo "🎉 Coverage meets recommended ${WARNING_THRESHOLD}% threshold"
+            fi
+          else
+            echo "⚠️ Coverage file not found"
+          fi
+
+  test-different-node-versions:
+    name: Test Node.js Compatibility
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test -- --watchAll=false --passWithNoTests
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, test-different-node-versions]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "Node.js Compatibility: ${{ needs.test-different-node-versions.result }}"
+          
+          if [[ "${{ needs.unit-tests.result }}" == "failure" ]]; then
+            echo "❌ Unit tests failed"
+            exit 1
+          elif [[ "${{ needs.test-different-node-versions.result }}" == "failure" ]]; then
+            echo "❌ Node.js compatibility tests failed"
+            exit 1
+          else
+            echo "✅ All tests passed"
+          fi

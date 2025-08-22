@@ -5,7 +5,14 @@ on:
     branches: [ main, develop ]
     paths:
       - 'src/**'
-      - 'package.json'
+                 <details>
+            <summary>📋 Analysis Details</summary>
+            
+            - Bundle analysis run on Android platform
+            - Comparison between base branch (\`${baseBranch}\`) and PR branch
+            - Sizes include JavaScript bundle only (assets analyzed separately)
+            
+            </details>`;age.json'
       - 'package-lock.json'
       - 'metro.config.js'
       - 'babel.config.js'
@@ -71,6 +78,11 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
+            
+            // Safely get the base branch name with fallbacks
+            const baseBranch = context.payload?.pull_request?.base?.ref || 
+                              process.env.GITHUB_BASE_REF || 
+                              'master';
             
             function getFileSize(filePath) {
               try {
