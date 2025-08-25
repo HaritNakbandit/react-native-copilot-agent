@@ -10,6 +10,7 @@ interface CustomButtonProps {
   disabled?: boolean;
   loading?: boolean;
   variant?: 'primary' | 'secondary' | 'outline';
+  testID?: string;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -20,6 +21,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   disabled = false,
   loading = false,
   variant = 'primary',
+  testID = 'custom-button',
 }) => {
   const getButtonStyle = (): ViewStyle[] => {
     const baseStyle: ViewStyle[] = [styles.button];
@@ -70,7 +72,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       style={[...getButtonStyle(), style]}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.8}>
+      activeOpacity={0.8}
+      testID={testID}
+      >
       <Text style={[...getTextStyle(), textStyle]}>
         {loading ? 'Loading...' : title}
       </Text>

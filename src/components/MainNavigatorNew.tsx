@@ -4,7 +4,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import TransactionScreen from '../screens/transactions/TransactionScreen';
 import FundsNavigator from './FundsNavigator';
-import SettingsNavigator from './SettingsNavigator';
 import { MainTabParamList, DashboardStackParamList, TransactionsStackParamList } from '../types/navigation';
 import { COLORS } from '../utils/constants';
 
@@ -85,13 +84,6 @@ const MainNavigator: React.FC = () => {
         component={TransactionsNavigator}
         options={{
           tabBarLabel: 'Transactions',
-        }}
-      />
-      <Tab.Screen 
-        name="Settings" 
-        component={SettingsNavigator}
-        options={{
-          tabBarLabel: 'Settings',
         }}
       />
     </Tab.Navigator>

@@ -8,23 +8,22 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {Fund, Investment, Transaction} from '../../types';
 import {COLORS, FONT_SIZES, SPACING} from '../../utils/constants';
 import {useAuth} from '../../contexts/AuthContext';
 import StorageService from '../../services/StorageService';
 import CustomButton from '../../components/common/CustomButton';
+import { FundsStackParamList } from '../../types/navigation';
 
-interface InvestmentScreenProps {
-  fund: Fund;
-  onSuccess: () => void;
-  onBack: () => void;
-}
+type InvestmentScreenNavigationProp = NativeStackNavigationProp<FundsStackParamList, 'Investment'>;
+type InvestmentScreenRouteProp = RouteProp<FundsStackParamList, 'Investment'>;
 
-const InvestmentScreen: React.FC<InvestmentScreenProps> = ({
-  fund,
-  onSuccess,
-  onBack,
-}) => {
+const InvestmentScreen: React.FC = () => {
+  const navigation = useNavigation<InvestmentScreenNavigationProp>();
+  const route = useRoute<InvestmentScreenRouteProp>();
+  const { fund } = route.params;
   const {state: authState} = useAuth();
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
@@ -136,7 +135,7 @@ const InvestmentScreen: React.FC<InvestmentScreenProps> = ({
           {
             text: 'OK',
             onPress: () => {
-              onSuccess();
+              navigation.navigate('FundList');
             },
           },
         ]
@@ -280,7 +279,7 @@ const InvestmentScreen: React.FC<InvestmentScreenProps> = ({
       <View style={styles.actionBar}>
         <CustomButton
           title="Back"
-          onPress={onBack}
+          onPress={() => navigation.goBack()}
           variant="outline"
           style={styles.backButton}
         />

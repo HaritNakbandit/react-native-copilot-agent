@@ -9,15 +9,18 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {COLORS, FONT_SIZES, SPACING, VALIDATION_RULES} from '../../utils/constants';
 import CustomButton from '../../components/common/CustomButton';
+import { useAuth } from '../../contexts/AuthContext';
+import { AuthStackParamList } from '../../types/navigation';
 
-interface LoginScreenProps {
-  onLogin: (email: string, password: string) => Promise<boolean>;
-  onNavigateToRegister: () => void;
-}
+type LoginScreenNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
-const LoginScreen: React.FC<LoginScreenProps> = ({onLogin, onNavigateToRegister}) => {
+const LoginScreen: React.FC = () => {
+  const navigation = useNavigation<LoginScreenNavigationProp>();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -49,7 +52,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin, onNavigateToRegister}
 
     setLoading(true);
     try {
-      const success = await onLogin(email.trim(), password);
+      const success = await login(email.trim(), password);
       if (!success) {
         Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
       }
@@ -82,8 +85,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin, onNavigateToRegister}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              testID="input-email"
             />
-            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+            {errors.email && <Text style={styles.errorText} testID="error-email">{errors.email}</Text>}
           </View>
 
           <View style={styles.inputContainer}>
@@ -97,8 +101,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin, onNavigateToRegister}
               secureTextEntry
               autoCapitalize="none"
               autoCorrect={false}
+              testID="input-password"
             />
-            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            {errors.password && <Text style={styles.errorText} testID="error-password">{errors.password}</Text>}
           </View>
 
           <CustomButton
@@ -106,15 +111,17 @@ const LoginScreen: React.FC<LoginScreenProps> = ({onLogin, onNavigateToRegister}
             onPress={handleLogin}
             loading={loading}
             style={styles.loginButton}
+            testID="login-button"
           />
 
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Don't have an account? </Text>
             <CustomButton
               title="Sign Up"
-              onPress={onNavigateToRegister}
+              onPress={() => navigation.navigate('Register')}
               variant="outline"
               style={styles.registerButton}
+              testID="register-button"
             />
           </View>
         </View>
