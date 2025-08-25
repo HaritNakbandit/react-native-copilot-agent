@@ -26,10 +26,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          # Disable cache to avoid corruption issues
+          # cache: 'npm'
+
+      - name: Clear npm cache
+        run: npm cache clean --force
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit
 
       - name: TypeScript Check
         run: npx tsc --noEmit
@@ -50,7 +54,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          # Disable cache to avoid corruption issues
+          # cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
