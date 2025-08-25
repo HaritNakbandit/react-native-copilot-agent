@@ -28,11 +28,30 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: TypeScript Check
         run: npx tsc --noEmit
 
       - name: Run Tests
-        run: npm test
+        run: npm test -- --coverage --watchAll=false
+
+      - name: Upload Coverage Reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Comment Test Coverage
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+          delete-old-comments: true
 
   security-scan:
     name: Security Scan
@@ -46,7 +65,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -68,18 +87,16 @@ jobs:
   summary:
     name: PR Validation Summary
     runs-on: ubuntu-latest
-    needs: [code-quality, android-build, ios-build, security-scan]
+    needs: [code-quality, security-scan]
     if: always()
 
     steps:
       - name: Check results
         run: |
           echo "Code Quality: ${{ needs.code-quality.result }}"
-          echo "Android Build: ${{ needs.android-build.result }}"
-          echo "iOS Build: ${{ needs.ios-build.result }}"
           echo "Security Scan: ${{ needs.security-scan.result }}"
           
-          if [[ "${{ needs.code-quality.result }}" == "failure" || "${{ needs.android-build.result }}" == "failure" || "${{ needs.ios-build.result }}" == "failure" ]]; then
+          if [[ "${{ needs.code-quality.result }}" == "failure" ]]; then
             echo "❌ PR validation failed"
             exit 1
           else
