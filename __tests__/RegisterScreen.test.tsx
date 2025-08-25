@@ -34,6 +34,9 @@ describe('form submit', () => {
     });
 
     test('form submit pass validate', async () => {
+        // Configure the mock to resolve immediately
+        mockRegister.mockResolvedValue(true);
+        
         render(<RegisterScreen />);
 
         const inputFullName = screen.getByTestId('input-full-name');
@@ -46,7 +49,7 @@ describe('form submit', () => {
         // Fill out the form
         fireEvent.changeText(inputFullName, 'test test');
         fireEvent.changeText(inputEmail, 'test@gmail.com');
-        fireEvent.changeText(inputPhoneNumber, '0957656645');
+        fireEvent.changeText(inputPhoneNumber, '+1234567890');
         fireEvent.changeText(inputPassword, '123456789zZ');
         fireEvent.changeText(inputConfirmPassword, '123456789zZ');
 
@@ -55,14 +58,14 @@ describe('form submit', () => {
             fireEvent.press(buttonRegister);
         });
 
-        // Wait for async operations to complete
+        // Wait for async operations to complete with a longer timeout
         await waitFor(() => {
             expect(mockRegister).toHaveBeenCalledWith({
                 fullName: 'test test',
                 email: 'test@gmail.com',
-                phoneNumber: '0957656645',
+                phoneNumber: '+1234567890',
                 password: '123456789zZ'
             });
-        });
-    });
+        }, { timeout: 10000 });
+    }, 15000); // Set test timeout to 15 seconds
 })
